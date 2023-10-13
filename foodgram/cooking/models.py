@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 
 User = get_user_model() 
 
@@ -8,13 +8,12 @@ User = get_user_model()
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True,)
     color = models.CharField(max_length=50, unique=True,)
-    slug = models.SlugField(unique=True,)
+    slug = models.SlugField(max_length=100, unique=True,)
 
     class Meta:
         ordering = ('name',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-
 
 
 class Ingredient(models.Model):
@@ -33,9 +32,9 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipe', verbose_name='Автор рецепта')
     name = models.CharField(max_length=100, verbose_name='Название')
-    image = models.ImageField(verbose_name='Фото блюда')
-    text = models.TextField()
-    ingredient = models.ManyToManyField(Ingredient, blank=False, through='RecipeIngredients',)
+    image = models.ImageField(null=True, blank=True, upload_to='cooking/media/', verbose_name='Фото блюда')
+    text = models.TextField(verbose_name='Рецепт')
+    ingredient = models.ManyToManyField(Ingredient, blank=False, through='RecipeIngredients', verbose_name='Ингридиенты')
     tag = models.ManyToManyField(Tag, verbose_name='Тег',)
     time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления', default=15, validators=[MinValueValidator(1)]
@@ -54,11 +53,11 @@ class Recipe(models.Model):
 
 class RecipeIngredients(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
-    amount = models.FloatField('Количество ингредиента', validators=[MinValueValidator(0.1), MaxValueValidator(10000)])
+    ingredients = models.ForeignKey(Ingredient, on_delete=models.CASCADE,)
+    amount = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
-        verbose_name = 'Количество ингридиента'
+        verbose_name = 'Количество ингридиентов'
 
     def __str__(self):
         return f'{self.amount} {self.ingredient.name}'
