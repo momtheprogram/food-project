@@ -1,13 +1,20 @@
+import os
 from pathlib import Path
 
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-qm(nceu!z=gk!21&+)$)hk^cki@#9vc_yt2vd=286fxwiv=&do'
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-DEBUG = True
+SECRET_KEY = env('SECRET_KEY')
 
-ALLOWED_HOSTS = []
+DEBUG = env('DEBUG')
+
+ALLOWED_HOSTS = ['*']  # +productive host
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
     'cooking.apps.CookingConfig',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
@@ -54,12 +62,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': env('DB_ENGINE'),
+            'NAME': env('DB_NAME'),
+            'USER': env('POSTGRES_USER'),
+            'PASSWORD': env('POSTGRES_PASSWORD'),
+            'HOST': env('DB_HOST'),
+            'PORT': env('DB_PORT'),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -78,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-Ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -88,21 +108,47 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'SERIALIZERS': {
-        'user': 'djoser.serializers.UserSerializer',
-        'current_user': 'djoser.serializers.UserSerializer',
-    },
-}
+AUTH_USER_MODEL = 'users.User'
+
+ADMIN_EMAIL = env('ADMIN_EMAIL')
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'TEST_REQUEST_RENDERER_CLASSES': [
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.TemplateHTMLRenderer'
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
+
+DJOSER = {
+    'SET_PASSWORD_RETYPE': False,
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.UserCreateSerializer',
+        'current_user': 'api.serializers.AuthorSerializer',
+    },
 }
