@@ -1,17 +1,28 @@
-# фудграм
+# Проект Фудграм
+
 ### Описание
+
 Кулинарная социальная сеть для ваших кулинарных свершений.
-### Технологии пока что:
+Делитесь своими рецептами и узнавайте новые.
+Подписывайтесь на авторов рецептов.
+
+### Технологии
+
 Python 3.10
 Django 3.2
-### Запуск проекта в dev-режиме пока что:
-- Установите и активируйте виртуальное окружение
-- Установите зависимости из файла requirements.txt
+DRF
+Gunicorn
+nginx
+Docker
+Docker compose
+
+### Как развернуть
+1. Скачайте docker-compose.yml из репозитория 
+2. https://github.com/momtheprogram/foodgram-project-react/blob/master/infra/docker-compose.yml
+2. Создайте файл .env
 ```
-pip install -r requirements.txt
-``` 
-- В папке с файлом manage.py выполните команду:
+touch .env
 ```
-python3 manage.py runserver
-```
-### Автор Наталья Ляховицкая
+
+
+## Автор: Natalia Lyakhovitskaya https://github.com/momtheprogram
