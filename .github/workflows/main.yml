@@ -130,6 +130,6 @@ jobs:
               sudo docker compose -f docker-compose.yml pull
               sudo docker compose -f docker-compose.yml down
               sudo docker compose -f docker-compose.yml up -d
-              sudo docker compose -f docker-compose.yml exec backend python manage.py migrate
-              sudo docker compose -f docker-compose.yml exec backend python manage.py collectstatic
-              sudo docker compose -f docker-compose.yml exec backend cp -r /app/backend_static/. /backend_static/backend_static/
+              sudo docker compose -f docker-compose.yml exec foodgram python manage.py migrate
+              sudo docker compose -f docker-compose.yml exec foodgram python manage.py collectstatic
+              sudo docker compose -f docker-compose.yml exec fooggram cp -r /app/backend_static/. /backend_static/backend_static/
