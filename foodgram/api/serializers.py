@@ -23,7 +23,6 @@ class AuthorSerializer(serializers.ModelSerializer):
             user=self.context['request'].user.id,
             author=obj,
         ).exists()
-
         return subscribe
 
 
