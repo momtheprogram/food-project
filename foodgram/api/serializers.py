@@ -1,4 +1,3 @@
-from cooking.models import IngredientQuantity, Tag, Recipe, Ingredient, Cart, Favorite
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
@@ -6,7 +5,9 @@ from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueValidator
 
-from users.models import User, Subscribe
+from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
+                            Recipe, Tag)
+from users.models import Subscribe, User
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -54,11 +55,18 @@ class IngredientRecipeSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
-    ingredients = IngredientRecipeSerializer(source='ingredientquantity_set', many=True, required=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
+    ingredients = IngredientRecipeSerializer(
+        source='ingredientquantity_set', many=True, required=True
+    )
     image = Base64ImageField()
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=False, queryset=User.objects.all(), default=CurrentUserDefault()
+        slug_field='username',
+        read_only=False,
+        queryset=User.objects.all(),
+        default=CurrentUserDefault()
     )
     cooking_time = serializers.IntegerField()
 
@@ -89,7 +97,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.image = validated_data.get('image', instance.image)
         instance.text = validated_data.pop('text', instance.text)
-        instance.cooking_time = validated_data.pop('cooking_time', instance.cooking_time)
+        instance.cooking_time = validated_data.pop(
+            'cooking_time', instance.cooking_time
+        )
         instance.save()
         instance.tags.clear()
         instance.tags.set(tags_list)

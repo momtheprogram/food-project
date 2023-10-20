@@ -1,11 +1,19 @@
 from django.contrib import admin
 
-from .models import User, Subscribe
+from .models import Subscribe, User
 
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+    list_display = (
+        'pk',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
+        'is_active'
+    )
     search_fields = ('username', 'email')
     list_filter = ('first_name', 'last_name')
     ordering = ('username',)

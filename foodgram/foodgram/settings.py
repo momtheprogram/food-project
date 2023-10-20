@@ -72,12 +72,12 @@ if DEBUG:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': env('DB_ENGINE', 'django.db.backends.postgresql'),
-            'NAME': env('DB_NAME', 'foodgram'),
-            'USER': env('POSTGRES_USER', 'foodrgram_user'),
-            'PASSWORD': env('POSTGRES_PASSWORD', 'foodgram_password'),
-            'HOST': env('DB_HOST', 'db'),
-            'PORT': env('DB_PORT', 5432),
+            'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
+            'NAME': env('DB_NAME', default='foodgram'),
+            'USER': env('POSTGRES_USER', default='foodrgram_user'),
+            'PASSWORD': env('POSTGRES_PASSWORD', default='foodgram_password'),
+            'HOST': env('DB_HOST', default='db'),
+            'PORT': env('DB_PORT', default=5432),
         }
     }
 

@@ -1,7 +1,6 @@
 import csv
 
 import django_filters.rest_framework
-from cooking.models import Recipe, Ingredient, Tag, Cart, Favorite, IngredientQuantity
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.http.response import JsonResponse
@@ -10,21 +9,18 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
-from users.models import User, Subscribe
 
-from .filters import RecipeFilter, CustomIngredientsFilter
+from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
+                            Recipe, Tag)
+from users.models import Subscribe, User
+
+from .filters import CustomIngredientsFilter, RecipeFilter
 from .paginators import CustomPagination
 from .permissions import IsOwnerOrAcceptedMethods
-from .serializers import (
-    AuthorSerializer,
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeLinkedModelsSerializer,
-    RecipeSerializer,
-    TagSerializer,
-    SubscribeListSerializer,
-    UserCreateSerializer
-)
+from .serializers import (AuthorSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeLinkedModelsSerializer,
+                          RecipeSerializer, SubscribeListSerializer,
+                          TagSerializer, UserCreateSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -146,7 +142,9 @@ class TagViewSet(ListAPIView, RetrieveAPIView, viewsets.GenericViewSet):
     pagination_class = None
 
 
-class UserSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+class UserSet(mixins.ListModelMixin,
+              mixins.CreateModelMixin,
+              viewsets.GenericViewSet):
     permission_classes = (permissions.AllowAny,)
     serializer_class = AuthorSerializer
     pagination_class = CustomPagination
