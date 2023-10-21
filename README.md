@@ -56,9 +56,12 @@
 - Загрузка осуществляется при необходимости командой `python manage.py loaddata <path_to_json>`
 
 
-### Развернутый проект можно посмотреть по ссылке. Проект пока не развернут!:
-http://foodgram.serveblog.net
-http://ip_number
+### Развернутый проект можно посмотреть по ссылкам:
+
+- http://foodgram.serveblog.net
+
+- http://158.160.73.243/signin
+
 
 
 
