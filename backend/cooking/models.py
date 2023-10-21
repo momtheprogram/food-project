@@ -60,9 +60,8 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(Tag, verbose_name='Тег', )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        default=15,
         validators=[MinValueValidator(1)]
     )
     carts = models.ManyToManyField(
@@ -71,6 +70,7 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
+        db_index=True,
     )
 
     class Meta:

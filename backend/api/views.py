@@ -13,10 +13,9 @@ from rest_framework.response import Response
 from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
                             Recipe, Tag)
 from users.models import Subscribe, User
-
 from .filters import CustomIngredientsFilter, RecipeFilter
 from .paginators import CustomPagination
-from .permissions import IsOwnerOrAcceptedMethods
+from .permissions import IsOwnerOrAcceptedMethods, IsAuthor
 from .serializers import (AuthorSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeLinkedModelsSerializer,
                           RecipeSerializer, SubscribeListSerializer,
@@ -27,10 +26,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = RecipeFilter
+    filterset_class = RecipeFilter
     pagination_class = CustomPagination
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrAcceptedMethods,)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrAcceptedMethods,
+        IsAuthor
+    )
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
@@ -47,13 +49,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=400, data="wrong parameters")
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
-            methods=['get', 'delete'])
+            methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None, model_name: str = 'cart'):
         kwargs = self.do_action_with_model(request, pk, model_name)
         return Response(**kwargs)
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
-            methods=['get', 'delete'])
+            methods=['post', 'delete'])
     def favorite(self, request, pk=None, model_name: str = 'favorite'):
         kwargs = self.do_action_with_model(request, pk, model_name)
         return Response(**kwargs)
@@ -64,7 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'favorite': Favorite,
         }.get(model_name)
 
-        if request.method == 'GET':
+        if request.method == 'POST':
             kwargs = self.add_recipe_to_model(request, pk, model)  # noqa
             return kwargs
         elif request.method == 'DELETE':
@@ -84,7 +86,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user,
         )
         serializer = RecipeLinkedModelsSerializer(recipe)
-        return {'data': serializer.data, 'status': status.HTTP_200_OK}
+        return {'data': serializer.data, 'status': status.HTTP_201_CREATED}
 
     def delete_model_with_recipe(self, request, pk, model: Cart or Favorite):
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -131,7 +133,7 @@ class IngredientViewSet(ListAPIView, RetrieveAPIView, viewsets.GenericViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    filter_class = CustomIngredientsFilter
+    filterset_class = CustomIngredientsFilter
     pagination_class = None
 
 
@@ -175,14 +177,15 @@ class UserSet(mixins.ListModelMixin,
         serializer = self.get_serializer(queryset, many=True)
         return JsonResponse(serializer.data)
 
-    @action(detail=True, permission_classes=[permissions.IsAuthenticated],
-            methods=['delete', 'get'])
+    @action(detail=True,
+            permission_classes=[permissions.IsAuthenticated, IsAuthor],
+            methods=['delete', 'post'])
     def subscribe(self, request, pk=None):
         if request.method == 'DELETE':
             kwargs = self.delete_subscribe(request, pk)
             return Response(**kwargs)
 
-        elif request.method == 'GET':
+        elif request.method == 'POST':
             kwargs = self.create_subscribe(request, pk)
             return Response(**kwargs)
 

@@ -1,0 +1,56 @@
+[
+  {
+    "model": "cooking.tag",
+    "pk": 1,
+    "fields": {
+      "name": "Завтрак",
+      "color": "#CD5C5C",
+      "slug": "breakfast"
+    }
+  },
+  {
+    "model": "cooking.tag",
+    "pk": 2,
+    "fields": {
+      "name": "Обед",
+      "color": "#ADFF2F",
+      "slug": "lunch"
+    }
+  },
+  {
+    "model": "cooking.tag",
+    "pk": 3,
+    "fields": {
+      "name": "Перекус",
+      "color": "#00FFFF",
+      "slug": "snack"
+    }
+  },
+  {
+    "model": "cooking.tag",
+    "pk": 4,
+    "fields": {
+      "name": "Ужин",
+      "color": "#FF69B4",
+      "slug": "dinner"
+    }
+  },
+  {
+    "model": "cooking.tag",
+    "pk": 5,
+    "fields": {
+      "name": "К чаю",
+      "color": "#FFD700",
+      "slug": "to-tea"
+    }
+  },
+  {
+    "model": "cooking.tag",
+    "pk": 6,
+    "fields": {
+      "name": "Шаурма",
+      "color": "#E0FFFF",
+      "slug": "best"
+    }
+  }
+]

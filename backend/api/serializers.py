@@ -60,7 +60,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         source='ingredientquantity_set', many=True, required=True
     )
-    image = Base64ImageField()
+    image = Base64ImageField(required=True)
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=False,
@@ -165,11 +165,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(
-        source='ingredientquantity_set', many=True
+        source='ingredientquantity_set', many=True, required=True
     )
     image = Base64ImageField()
     author = AuthorSerializer(default=CurrentUserDefault())
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, required=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 

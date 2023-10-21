@@ -14,7 +14,12 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '158.160.73.243',
+    '127.0.0.1',
+    'localhost',
+    'http://foodgram.serveblog.net'
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,13 +28,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'djoser',
+
     'cooking.apps.CookingConfig',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -62,24 +69,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': env('POSTGRES_DB', default='foodgram'),
+        'USER': env('POSTGRES_USER', default='foodrgram_user'),
+        'PASSWORD': env('POSTGRES_PASSWORD', default='foodgram_password'),
+        'HOST': env('DB_HOST', default='db'),
+        'PORT': env('DB_PORT', default=5432),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
-            'NAME': env('DB_NAME', default='foodgram'),
-            'USER': env('POSTGRES_USER', default='foodrgram_user'),
-            'PASSWORD': env('POSTGRES_PASSWORD', default='foodgram_password'),
-            'HOST': env('DB_HOST', default='db'),
-            'PORT': env('DB_PORT', default=5432),
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -122,7 +121,7 @@ ADMIN_EMAIL = env('ADMIN_EMAIL')
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
