@@ -36,13 +36,13 @@ jobs:
             host: ${{ secrets.HOST }}
             username: ${{ secrets.USER }}
             key: ${{ secrets.SSH_KEY }}
-            passphrase: ${{ secrets.PASSPHRASE }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             stack_file_name: docker-compose.yaml
             script: |
               cd /home/yc-user/foodgram
+              sudo docker compose stop
+              sudo docker compose rm backend
               sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-              sudo docker-compose stop
-              sudo docker-compose rm backend
               touch .env
               echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
               echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
@@ -52,7 +52,7 @@ jobs:
               echo DB_PORT=${{ secrets.DB_PORT }} >> .env
               echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
               echo ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} >> .env
-              sudo docker-compose up -d
+              sudo docker compose up -d
 
   send_message:
     runs-on: ubuntu-latest
