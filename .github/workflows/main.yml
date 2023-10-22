@@ -39,10 +39,9 @@ jobs:
           stack_file_name: docker-compose.yaml
           script: |
             cd /home/yc-user/foodgram
-            sudo docker compose stop
-            sudo docker compose rm backend
+            sudo docker compose down
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-            touch .env
+            > .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
             echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
