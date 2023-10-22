@@ -8,9 +8,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     email = models.EmailField(
-        max_length=254, blank=False, null=False, unique=True
+        max_length=254, blank=False, null=False, unique=True, verbose_name='Почта'
     )
-    username = models.CharField(max_length=150, blank=True, unique=True)
+    username = models.CharField(max_length=150, blank=True, unique=True, verbose_name='Логин')
     password = models.CharField(
         verbose_name='Пароль', null=False, blank=False, max_length=150
     )

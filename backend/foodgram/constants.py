@@ -1,0 +1,3 @@
+PAGE_SIZE = 10
+LIMIT = 'limit'
+MAX_PAGE_SIZE = 100

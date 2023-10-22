@@ -5,6 +5,9 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ../backend/.env
+    ports:
+      - "5432:5432"
+
   backend:
     build:
       context: ../backend
@@ -17,6 +20,7 @@ services:
       - db
     env_file:
       - ../backend/.env
+
   frontend:
     build:
       context: ../frontend

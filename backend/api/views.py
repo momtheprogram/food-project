@@ -24,7 +24,6 @@ from .serializers import (AuthorSerializer, IngredientSerializer,
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = CustomPagination

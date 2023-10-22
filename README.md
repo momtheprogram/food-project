@@ -33,9 +33,9 @@
 #### Для локального запуска проекта выполнить команды:
 
 - Скопировать в `/backend` файл `.env.example` в `.env` с соответствующими значениями;
-- `sudo docker-compose -f docker-compose.develop.yaml up -d --build`
-- `sudo docker-compose exec backend python manage.py migrate --noinput` - применение миграций 
-- `sudo docker-compose exec backend python manage.py collectstatic --no-input` - сбор статики
+- `sudo docker compose -f docker-compose.develop.yaml up -d --build`
+- `sudo docker compose exec backend python manage.py migrate --noinput` - применение миграций 
+- `sudo docker compose exec backend python manage.py collectstatic --no-input` - сбор статики
 
 
 #### Для запуска проекта на сервере через github action необходимо сделать `push` на ветку `master`:
@@ -62,7 +62,10 @@
 
 - http://158.160.73.243/signin
 
-
+### админка:
+- email: bot@bot.ru
+- login: admin
+- pass: admin01
 
 
 ## Автор: Natalia Lyakhovitskaya https://github.com/momtheprogram

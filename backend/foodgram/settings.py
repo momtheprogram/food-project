@@ -14,12 +14,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = [
-    '158.160.73.243',
-    '127.0.0.1',
-    'localhost',
-    'http://foodgram.serveblog.net'
-]
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -75,7 +70,7 @@ DATABASES = {
         'NAME': env('POSTGRES_DB', default='foodgram'),
         'USER': env('POSTGRES_USER', default='foodrgram_user'),
         'PASSWORD': env('POSTGRES_PASSWORD', default='foodgram_password'),
-        'HOST': env('DB_HOST', default='db'),
+        'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default=5432),
     }
 }
@@ -147,7 +142,6 @@ DJOSER = {
     'SET_PASSWORD_RETYPE': False,
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        'user_create': 'api.serializers.UserCreateSerializer',
         'current_user': 'api.serializers.AuthorSerializer',
     },
 }
