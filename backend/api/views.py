@@ -44,8 +44,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(status=201, data=serializer.data)
-        return Response(status=400, data="wrong parameters")
+            return Response(status=status.HTTP_201_CREATED, data=serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST, data="wrong parameters")
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
             methods=['post', 'delete'])
@@ -88,13 +88,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return {'data': serializer.data, 'status': status.HTTP_201_CREATED}
 
     def delete_model_with_recipe(self, request, pk, model: Cart or Favorite):
-        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe = Recipe.objects.filter(pk=pk).first()
         model_with_recipe = model.objects.get(
             user=request.user,
             recipe=recipe
         )
-        if not model_with_recipe:
-            return status.HTTP_400_BAD_REQUEST
+        if not model_with_recipe or not recipe:
+            return {'status': status.HTTP_400_BAD_REQUEST}
         model_with_recipe.delete()
         return {'status': status.HTTP_204_NO_CONTENT}
 
@@ -204,13 +204,15 @@ class UserSet(mixins.ListModelMixin,
             user=request.user,
         )
         serializer = SubscribeListSerializer(new_subscribe)
-        return {'data': serializer.data, 'status': status.HTTP_200_OK}
+        return {'data': serializer.data, 'status': status.HTTP_201_CREATED}
 
     def delete_subscribe(self, request, pk) -> dict:
         if pk == request.user.id:
             return {'status': status.HTTP_400_BAD_REQUEST}
-        subscribe = get_object_or_404(
-            Subscribe, author=pk, user=request.user.id)
+        subscribe = Subscribe.objects.filter(author=pk, user=request.user.id).first()
+        if not subscribe:
+            return {'status': status.HTTP_400_BAD_REQUEST}
+
         subscribe.delete()
         return {'status': status.HTTP_204_NO_CONTENT}
 

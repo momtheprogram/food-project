@@ -58,7 +58,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientRecipeSerializer(
-        source='ingredientquantity_set', many=True, required=True
+        source='ingredientquantity_set',
+        many=True,
+        required=True,
+        write_only=True
     )
     image = Base64ImageField(required=True)
     author = serializers.SlugRelatedField(
@@ -130,6 +133,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 ingredient_quantity.save()
         recipe.save()
         return recipe
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Картинка не должна быть пустой!')
+        return value
 
     def validate_cooking_time(self, value):
         if value < 0:

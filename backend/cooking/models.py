@@ -1,7 +1,10 @@
+from colorfield.fields import ColorField
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+
+from foodgram.constants import SLICE_NAME_INGREDIENT, SLICE_NAME_TAG
 
 User = get_user_model()
 
@@ -10,26 +13,25 @@ class Tag(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
-        verbose_name='Название тега')
-    color = models.CharField(
-        max_length=50,
-        unique=True,
-        verbose_name='Цвет тега'
+        verbose_name='Название тега'
+    )
+    color = ColorField(
+        default='#FF0000',
+        verbose_name='Цвет тега',
     )
     slug = models.SlugField(
         max_length=100,
         unique=True,
-        db_index=True,
         verbose_name='slug'
     )
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('pk',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return f'{self.pk}, {self.name[:50]}'
+        return f'{self.pk}, {self.name[:SLICE_NAME_TAG]}'
 
 
 class Ingredient(models.Model):
@@ -43,15 +45,15 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('pk',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [models.UniqueConstraint(
+        constraints = (models.UniqueConstraint(
             fields=['name', 'measurement_unit'], name='unique ingredient'
-        )]
+        ),)
 
     def __str__(self):
-        return self.name[:30]
+        return self.name[:SLICE_NAME_INGREDIENT]
 
 
 class Recipe(models.Model):
@@ -97,7 +99,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['pub_date']
+        ordering = ('pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         constraints = (
@@ -134,10 +136,12 @@ class IngredientQuantity(models.Model):
     class Meta:
         verbose_name = 'Количество ингредиента в рецепте'
         verbose_name_plural = 'Количество инргредиентов в рецепте'
-        constraints = [models.UniqueConstraint(
-            fields=['recipe', 'ingredient'],
-            name='unique_recipe_ingredient'
-        )]
+        constraints = (
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_recipe_ingredient'
+            ),
+        )
 
     def __str__(self):
         return f'{self.ingredient.name}: {self.amount}'
@@ -157,13 +161,15 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('pk',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'recipe'],
-            name='favorites_recipes_user_recipe_unique'
-        )]
+        constraints = (
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='favorites_recipes_user_recipe_unique'
+            ),
+        )
 
 
 class Cart(models.Model):
@@ -181,15 +187,15 @@ class Cart(models.Model):
     )
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('pk',)
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='shopping_list_user_recipe_unique'
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.pk}'
