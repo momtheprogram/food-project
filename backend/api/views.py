@@ -44,8 +44,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(status=status.HTTP_201_CREATED, data=serializer.data)
-        return Response(status=status.HTTP_400_BAD_REQUEST, data="wrong parameters")
+            return Response(
+              status=status.HTTP_201_CREATED, 
+              data=serializer.data
+            )
+        return Response(
+          status=status.HTTP_400_BAD_REQUEST, 
+          data="wrong parameters"
+        )
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
             methods=['post', 'delete'])
@@ -209,7 +215,8 @@ class UserSet(mixins.ListModelMixin,
     def delete_subscribe(self, request, pk) -> dict:
         if pk == request.user.id:
             return {'status': status.HTTP_400_BAD_REQUEST}
-        subscribe = Subscribe.objects.filter(author=pk, user=request.user.id).first()
+        subscribe = Subscribe.objects.filter(
+          author=pk, user=request.user.id).first()
         if not subscribe:
             return {'status': status.HTTP_400_BAD_REQUEST}
 
