@@ -1,6 +1,8 @@
 import csv
 
 import django_filters.rest_framework
+from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
+                            Recipe, Tag)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.http.response import JsonResponse
@@ -9,10 +11,8 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
-
-from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
-                            Recipe, Tag)
 from users.models import Subscribe, User
+
 from .filters import CustomIngredientsFilter, RecipeFilter
 from .paginators import CustomPagination
 from .permissions import IsOwnerOrAcceptedMethods, IsAuthor
@@ -45,12 +45,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(
-              status=status.HTTP_201_CREATED, 
-              data=serializer.data
+                status=status.HTTP_201_CREATED,
+                data=serializer.data
             )
         return Response(
-          status=status.HTTP_400_BAD_REQUEST, 
-          data="wrong parameters"
+            status=status.HTTP_400_BAD_REQUEST,
+            data="wrong parameters"
         )
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
@@ -216,7 +216,8 @@ class UserSet(mixins.ListModelMixin,
         if pk == request.user.id:
             return {'status': status.HTTP_400_BAD_REQUEST}
         subscribe = Subscribe.objects.filter(
-          author=pk, user=request.user.id).first()
+            author=pk, user=request.user.id
+        ).first()
         if not subscribe:
             return {'status': status.HTTP_400_BAD_REQUEST}
 
