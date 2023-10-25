@@ -1,8 +1,6 @@
 import csv
 
 import django_filters.rest_framework
-from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
-                            Recipe, Tag)
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.http.response import JsonResponse
@@ -11,8 +9,10 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
-from users.models import Subscribe, User
 
+from cooking.models import (Cart, Favorite, Ingredient, IngredientQuantity,
+                            Recipe, Tag)
+from users.models import Subscribe, User
 from .filters import CustomIngredientsFilter, RecipeFilter
 from .paginators import CustomPagination
 from .permissions import IsOwnerOrAcceptedMethods, IsAuthor
@@ -94,12 +94,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return {'data': serializer.data, 'status': status.HTTP_201_CREATED}
 
     def delete_model_with_recipe(self, request, pk, model: Cart or Favorite):
-        recipe = Recipe.objects.filter(pk=pk).first()
-        model_with_recipe = model.objects.get(
+        recipe = get_object_or_404(Recipe, pk=pk)
+        model_with_recipe = model.objects.filter(
             user=request.user,
             recipe=recipe
-        )
-        if not model_with_recipe or not recipe:
+        ).first()
+        if not model_with_recipe:
             return {'status': status.HTTP_400_BAD_REQUEST}
         model_with_recipe.delete()
         return {'status': status.HTTP_204_NO_CONTENT}
@@ -186,21 +186,21 @@ class UserSet(mixins.ListModelMixin,
             permission_classes=[permissions.IsAuthenticated, IsAuthor],
             methods=['delete', 'post'])
     def subscribe(self, request, pk=None):
+        author = get_object_or_404(User, pk=pk)
         if request.method == 'DELETE':
-            kwargs = self.delete_subscribe(request, pk)
+            kwargs = self.delete_subscribe(request, author.pk)
             return Response(**kwargs)
 
         elif request.method == 'POST':
-            kwargs = self.create_subscribe(request, pk)
+            kwargs = self.create_subscribe(request, author)
             return Response(**kwargs)
 
-    def create_subscribe(self, request, author_id: int) -> dict:
-        author = get_object_or_404(User, pk=author_id)
-        subscribe = Subscribe.objects.filter(
+    def create_subscribe(self, request, author: User) -> dict:
+        is_subscribed = Subscribe.objects.filter(
             author=author,
             user=request.user,
-        )
-        if subscribe or author_id == request.user.pk:
+        ).exists()
+        if is_subscribed or (author.pk == request.user.pk):
             return {
                 'data': {'error_400': 'Ошибка подписки'},
                 'status': status.HTTP_400_BAD_REQUEST,
@@ -209,15 +209,13 @@ class UserSet(mixins.ListModelMixin,
             author=author,
             user=request.user,
         )
-        serializer = SubscribeListSerializer(new_subscribe)
+        context = super().get_serializer_context()
+        serializer = SubscribeListSerializer(new_subscribe, context=context)
         return {'data': serializer.data, 'status': status.HTTP_201_CREATED}
 
-    def delete_subscribe(self, request, pk) -> dict:
-        if pk == request.user.id:
-            return {'status': status.HTTP_400_BAD_REQUEST}
+    def delete_subscribe(self, request, author) -> dict:
         subscribe = Subscribe.objects.filter(
-            author=pk, user=request.user.id
-        ).first()
+            author=author, user=request.user).first()
         if not subscribe:
             return {'status': status.HTTP_400_BAD_REQUEST}
 

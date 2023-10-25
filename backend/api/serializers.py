@@ -141,7 +141,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_cooking_time(self, value):
-        if value < 0:
+        if value <= 0:
             raise serializers.ValidationError(
                 'Время готовки не может быть отрицательным')
         return value
@@ -170,6 +170,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Неуникальные значения в поле.')
         return True
+
+    def validate_tags(self, value):
+        if len(value) <= 0:
+            raise serializers.ValidationError(
+                'Теги должны быть!')
+        return value
+
+    def to_representation(self, instance):
+        """Для приведения ответа к виду в соответствии с api."""
+        return RecipeSerializer(instance, context=self.context).data
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -249,12 +259,19 @@ class SubscribeListSerializer(serializers.Serializer):  # noqa
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = True
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField('get_recipes', read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     def get_recipes_count(self, obj) -> int:
         return obj.author.recipes.count()
+
+    def get_is_subscribed(self, obj) -> bool:
+        subscribe = Subscribe.objects.filter(
+            author=obj.author,
+            user=self.context['request'].user,
+        ).exists()
+        return subscribe
 
     def get_recipes(self, obj) -> dict:
         recipes_limit = (
