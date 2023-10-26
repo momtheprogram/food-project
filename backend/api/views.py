@@ -81,7 +81,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             kwargs = self.delete_model_with_recipe(request, pk, model)  # noqa
             return kwargs
 
-    def add_recipe_to_model(self, request, recipe: Recipe, model: Cart | Favorite):
+    def add_recipe_to_model(
+            self, request, recipe: Recipe, model: Cart | Favorite
+    ):
         new_model = model.objects.filter(
             recipe=recipe,
             user=request.user,
