@@ -123,7 +123,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return instance
 
     def add_ingredients(
-            self, recipe, ingredients: list or tuple, clear_ingredients: bool = False
+            self, recipe, ingredients: list or tuple,
+            clear_ingredients: bool = False
     ):
         if clear_ingredients:
             recipe.ingredients.clear()
@@ -170,7 +171,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def __validate_ingredients(self, value):
         """One item in for cycle is:
 
-        OrderedDict([('ingredient', {'id': 22222, 'name': 'абрикосовое пюре', 'measurement_unit': 'г'}),
+        OrderedDict([('ingredient', {'id': 22222, 'name':
+        'абрикосовое пюре', 'measurement_unit': 'г'}),
         ('amount', 1)])
         """
         count_ingredients = len(value)
