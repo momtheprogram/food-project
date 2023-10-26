@@ -171,12 +171,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Неуникальные значения в поле.')
         return True
 
-    def validate_tags(self, value):
-        if len(value) <= 0:
-            raise serializers.ValidationError(
-                'Теги должны быть!')
-        return value
-
     def to_representation(self, instance):
         """Для приведения ответа к виду в соответствии с api."""
         return RecipeSerializer(instance, context=self.context).data
