@@ -40,8 +40,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def patch(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        serializer = RecipeCreateSerializer(
-            recipe, data=request.data, partial=True)
+        serializer = RecipeCreateSerializer(recipe, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -55,14 +54,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
             methods=['post', 'delete'])
-    def shopping_cart(self, request, pk=None, model_name: str = 'cart'):
-        kwargs = self.do_action_with_model(request, pk, model_name)
+    def shopping_cart(self, request, pk=None):
+        kwargs = self.do_action_with_model(request, pk, 'cart')
         return Response(**kwargs)
 
     @action(detail=True, permission_classes=[permissions.IsAuthenticated],
             methods=['post', 'delete'])
-    def favorite(self, request, pk=None, model_name: str = 'favorite'):
-        kwargs = self.do_action_with_model(request, pk, model_name)
+    def favorite(self, request, pk=None):
+        kwargs = self.do_action_with_model(request, pk, 'favorite')
         return Response(**kwargs)
 
     def do_action_with_model(self, request, pk: int, model_name: str):
@@ -72,14 +71,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         }.get(model_name)
 
         if request.method == 'POST':
-            kwargs = self.add_recipe_to_model(request, pk, model)  # noqa
+            recipe = Recipe.objects.filter(pk=pk).first()
+            if not recipe:
+                kwargs = {'status': status.HTTP_400_BAD_REQUEST}
+            else:
+                kwargs = self.add_recipe_to_model(request, recipe, model)  # noqa
             return kwargs
         elif request.method == 'DELETE':
             kwargs = self.delete_model_with_recipe(request, pk, model)  # noqa
             return kwargs
 
-    def add_recipe_to_model(self, request, pk, model: Cart or Favorite):
-        recipe = get_object_or_404(Recipe, pk=pk)
+    def add_recipe_to_model(self, request, recipe: Recipe, model: Cart | Favorite):
         new_model = model.objects.filter(
             recipe=recipe,
             user=request.user,

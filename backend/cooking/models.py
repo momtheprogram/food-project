@@ -48,9 +48,11 @@ class Ingredient(models.Model):
         ordering = ('pk',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = (models.UniqueConstraint(
-            fields=['name', 'measurement_unit'], name='unique ingredient'
-        ),)
+        constraints = (
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'], name='unique ingredient'
+            ),
+        )
 
     def __str__(self):
         return self.name[:SLICE_NAME_INGREDIENT]

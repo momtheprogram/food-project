@@ -1,3 +1,4 @@
+from django.core import validators
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
@@ -9,22 +10,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     email = models.EmailField(
         max_length=254,
-        blank=False,
-        null=False,
         unique=True,
         verbose_name='Почта'
     )
     username = models.CharField(
-        max_length=150, blank=True, unique=True, verbose_name='Логин'
+        max_length=150,
+        unique=True,
+        verbose_name='Логин',
+        validators=(validators.RegexValidator(
+            r'^[\w.@+-]+\Z',
+            'Введите валидное имя пользователя'
+        ),)
     )
     password = models.CharField(
-        verbose_name='Пароль', null=False, blank=False, max_length=150
+        verbose_name='Пароль', max_length=150
     )
     first_name = models.CharField(
-        verbose_name='Имя', max_length=150, null=False, blank=False
+        verbose_name='Имя', max_length=150,
     )
     last_name = models.CharField(
-        verbose_name='Фамилия', max_length=150, null=False, blank=False
+        verbose_name='Фамилия', max_length=150,
     )
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField('Персонал сайта', default=False)
@@ -32,7 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
-        ordering = ['pk']
+        ordering = ('pk',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -52,12 +57,12 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['author', 'user'],
                 name='author_follower'
-            )
-        ]
+            ),
+        )
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 

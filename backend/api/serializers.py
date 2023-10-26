@@ -55,7 +55,7 @@ class IngredientRecipeSerializer(serializers.HyperlinkedModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True
+        queryset=Tag.objects.all(), many=True, required=True, allow_null=False
     )
     ingredients = IngredientRecipeSerializer(
         source='ingredientquantity_set',
@@ -93,6 +93,18 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
         return new_recipe
 
+    def validate(self, attrs):
+        ingredients = attrs.get('ingredientquantity_set', [])
+        tags = attrs.get('tags', [])
+        cooking_time = attrs.get('cooking_time')
+        image = attrs.get('image')
+        self.__validate_ingredients(ingredients)
+        self.__validate_tags(tags)
+        self.__validate_cooking_time(cooking_time)
+        self.__validate_image(image)
+
+        return attrs
+
     def update(self, instance, validated_data):
         tags_list = validated_data.pop('tags')
         ingredients_list = validated_data.get('ingredientquantity_set', )
@@ -110,8 +122,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def add_ingredients(self, recipe, ingredients: list or tuple,
-                        clear_ingredients: bool = False):
+    def add_ingredients(
+            self, recipe, ingredients: list or tuple, clear_ingredients: bool = False
+    ):
         if clear_ingredients:
             recipe.ingredients.clear()
 
@@ -134,34 +147,57 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe.save()
         return recipe
 
-    def validate_image(self, value):
+    def __validate_image(self, value):
         if not value:
             raise serializers.ValidationError(
                 'Картинка не должна быть пустой!')
         return value
 
-    def validate_cooking_time(self, value):
+    def __validate_cooking_time(self, value):
         if value <= 0:
             raise serializers.ValidationError(
                 'Время готовки не может быть отрицательным')
         return value
 
-    def validate_tags(self, value):
-        if len(value) <= 0:
+    def __validate_tags(self, value):
+        if value is None or len(value) <= 0:
             raise serializers.ValidationError(
                 'Не добавлено ни одного тега')
         self.unique_validator(value)
 
         return value
 
-    def validate_ingredients(self, value):
-        if len(value) <= 0:
+    def __validate_ingredients(self, value):
+        """One item in for cycle is:
+
+        OrderedDict([('ingredient', {'id': 22222, 'name': 'абрикосовое пюре', 'measurement_unit': 'г'}),
+        ('amount', 1)])
+        """
+        count_ingredients = len(value)
+        if value is None or count_ingredients <= 0:
             raise serializers.ValidationError(
                 'Не добавлено ни одного ингредиента.')
-        for ing in value:
-            if ing['amount'] <= 0:
+
+        unique_ingredients = set()
+        for item in value:
+
+            if item['amount'] <= 0:
                 raise serializers.ValidationError(
                     'Количество в ингредиенте не может быть отрицательным.')
+            ingredient = item['ingredient']
+
+            id_ = ingredient.get('id')
+            ingredient_entity = Ingredient.objects.filter(
+                pk=id_,
+            )
+            if not ingredient_entity.exists():
+                raise serializers.ValidationError(
+                    'Нет такого ингредиента!')
+            unique_ingredients.add(id_)
+
+        if len(unique_ingredients) != count_ingredients:
+            raise serializers.ValidationError(
+                'Не уникальные ингредиенты!')
         return value
 
     def unique_validator(self, value) -> bool:
