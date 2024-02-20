@@ -56,16 +56,12 @@
 - Загрузка осуществляется при необходимости командой `python manage.py loaddata <path_to_json>`
 
 
-### Развернутый проект можно посмотреть по ссылкам:
+### Развернутый проект можно было посмотреть по ссылкам:
 
 - http://foodgram.serveblog.net
 
 - http://158.160.73.243/signin
 
-### админка:
-- email: bot@bot.ru
-- login: admin
-- pass: admin01
 
 
 ## Автор: Natalia Lyakhovitskaya https://github.com/momtheprogram
